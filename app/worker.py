@@ -11,16 +11,26 @@ total_processadas = 0
 
 
 def processar_codigo(codigo: str) -> str:
+    """
+    Processa o código.
+    Retorna:
+      - PROCESSADO → sucesso
+      - ERRO → falha técnica
+    """
     logger.info(f"⚙️ Processando código: {codigo}")
 
-    time.sleep(1)
+    try:
+        # 🔥 AQUI entra sua lógica real depois
+        time.sleep(1)
 
-    if str(codigo).endswith("0"):
-        logger.warning(f"❌ Código inválido: {codigo}")
-        return "INVALIDO"
+        # ✅ enquanto não há regra de negócio:
+        logger.info(f"✅ Código processado com sucesso: {codigo}")
+        return "PROCESSADO"
 
-    logger.info(f"✅ Código válido: {codigo}")
-    return "PROCESSADO"
+    except Exception as e:
+        logger.exception(f"💥 Falha ao processar código: {codigo}")
+        return "ERRO"
+
 
 
 
