@@ -12,6 +12,9 @@ HEADERS = {
 }
 
 
+# =========================================================
+# BUSCAR TASK
+# =========================================================
 def obter_proxima_task():
     url = f"{NGROK_BASE_URL}/tasks/next"
     inicio = time.time()
@@ -23,23 +26,38 @@ def obter_proxima_task():
         elapsed = time.time() - inicio
 
         logger.info(f"📡 Status HTTP: {resp.status_code} ({elapsed:.2f}s)")
-
         resp.raise_for_status()
+
         data = resp.json()
 
-        # 🔴 aqui está o ponto crítico
-        if not data or data.get("task") is None:
-            logger.info("📭 API respondeu sem tarefas")
+        # -------------------------------------------------
+        # 🔴 CORREÇÃO PRINCIPAL
+        # Robô A retorna:
+        # { "id": X, "codigo": "..." }
+        # -------------------------------------------------
+
+        # vazio ou null
+        if not data:
+            logger.info("📭 API respondeu vazio")
             return None
 
-        logger.info(f"📥 Task recebida do servidor: {data}")
-        return data
+        # task válida
+        if isinstance(data, dict) and "id" in data and "codigo" in data:
+            logger.info(f"📥 Task recebida: id={data['id']} codigo={data['codigo']}")
+            return data
+
+        # payload inesperado
+        logger.warning(f"⚠️ Payload inesperado da API: {data}")
+        return None
 
     except Exception:
         logger.exception("❌ Falha ao buscar próxima task")
         return None
 
 
+# =========================================================
+# CONCLUIR TASK
+# =========================================================
 def concluir_task(task_id: int, status: str):
     url = f"{NGROK_BASE_URL}/tasks/{task_id}/complete"
     inicio = time.time()
